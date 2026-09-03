@@ -1,17 +1,24 @@
 
 import os
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain_core.output_parsers import StrOutputParser
 
 # Step 1: LLM ko define karein (non-streaming ke saath)
-llm = ChatOpenAI(
-    model="gpt-5",
-    openai_api_key=os.getenv("OPENAI_API_KEY"),
-    streaming=False,  # <-- YEH SABSE ZAROORI HAI
-    model_kwargs={
-        "reasoning_effort": "low"
-    }
+# llm = ChatOpenAI(
+#     model="gpt-5",
+#     openai_api_key=os.getenv("OPENAI_API_KEY"),
+#     streaming=False,  # <-- YEH SABSE ZAROORI HAI
+#     model_kwargs={
+#         "reasoning_effort": "low"
+#     }
+# )
+
+llm = ChatGroq(
+    model="openai/gpt-oss-120b",
+    groq_api_key=os.getenv("GROQ_API_KEY"),
+    temperature=0.3
 )
 
 # Step 2: Har agent ko ek simple LCEL chain banayein
