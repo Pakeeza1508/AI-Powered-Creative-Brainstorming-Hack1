@@ -75,6 +75,8 @@ async def stream_brainstorm_events(idea: str):
         final_end_event = {"event": "final_end"}
         yield f"data: {json.dumps(final_end_event)}\n\n"
         debug_logger.info("Non-streaming process finished successfully.")
+
+@app.get("/")
 @app.get("/api")
 def read_root():
     return {"message": "AI Brainstorming Lab Backend is running!"}
