@@ -73,7 +73,10 @@ const Workspace = ({ initialIdea, setSharedIdea }) => {
 
         setIsLoading(true);
 
-        const source = new EventSource(`http://localhost:8000/brainstorm?idea=${encodeURIComponent(ideaText)}`);
+        const source = new EventSource(
+        `https://ai-powered-creative-brainstorming-h.vercel.app/api/brainstorm?idea=${encodeURIComponent(ideaText)}`
+        );
+        // const source = new EventSource(`http://localhost:8000/brainstorm?idea=${encodeURIComponent(ideaText)}`);
         // const source = new EventSource(`https://ai-powered-creative-brainstorming-lab-production.up.railway.app/brainstorm?idea=${encodeURIComponent(ideaText)}`); eventSourceRef.current = source;
         let currentMessageId = null;
 
