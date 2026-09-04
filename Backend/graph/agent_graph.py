@@ -95,19 +95,50 @@ async def analyst_node(state):
         errors_logger.error(f"Error in Analyst: {e}", exc_info=True)
         return {"messages": ["Analyst: I encountered an error while analyzing the search results."]}
 
+# async def moderator_node(state):
+#     debug_logger.info("--- Running Moderator Agent ---")
+#     history = "\n".join(state['messages'])
+#     context = f"The user's idea is: '{state['input']}'.\nThe full debate is:\n{history}\n\nIt's your turn, Moderator. Provide a final summary, recommendation, and next steps."
+#     try:
+#         # CHANGE: The agent now directly returns a string.
+#         response_text = await moderator_agent.ainvoke({"input": context})
+#         output = f"Moderator: {response_text}"
+#         responses_logger.info(output)
+#         return {"messages": [output]}
+#     except Exception as e:
+#         errors_logger.error(f"Error in Moderator: {e}", exc_info=True)
+#         return {"messages": ["Moderator: I encountered an error and couldn't summarize the debate."]}
+
 async def moderator_node(state):
     debug_logger.info("--- Running Moderator Agent ---")
-    history = "\n".join(state['messages'])
-    context = f"The user's idea is: '{state['input']}'.\nThe full debate is:\n{history}\n\nIt's your turn, Moderator. Provide a final summary, recommendation, and next steps."
+
+    analyst_result = next(
+        (
+            message
+            for message in reversed(state["messages"])
+            if message.startswith("Analyst:")
+        ),
+        ""
+    )
+
+    context = (
+        f"The user's idea is: '{state['input']}'.\n\n"
+        f"Here is the Analyst's synthesis:\n{analyst_result}\n\n"
+        "Provide a concise final recommendation and 3-5 actionable next steps."
+    )
+
     try:
-        # CHANGE: The agent now directly returns a string.
         response_text = await moderator_agent.ainvoke({"input": context})
         output = f"Moderator: {response_text}"
         responses_logger.info(output)
         return {"messages": [output]}
     except Exception as e:
         errors_logger.error(f"Error in Moderator: {e}", exc_info=True)
-        return {"messages": ["Moderator: I encountered an error and couldn't summarize the debate."]}
+        return {
+            "messages": [
+                "Moderator: I encountered an error and couldn't summarize the debate."
+            ]
+        }
 
 def should_continue(state):
     turn = state.get('turn_count', 0)
@@ -115,9 +146,13 @@ def should_continue(state):
         return "moderator"
     return "optimist"
 
+# def after_analyst(state):
+#     state['turn_count'] = state.get('turn_count', 0) + 1
+#     return state
 def after_analyst(state):
-    state['turn_count'] = state.get('turn_count', 0) + 1
-    return state
+    return {
+        "turn_count": state.get("turn_count", 0) + 1
+    }
     
 # --- GRAPH DEFINITION (No changes here) ---
 workflow = StateGraph(AgentState)

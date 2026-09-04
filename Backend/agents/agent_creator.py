@@ -18,7 +18,8 @@ from langchain_core.output_parsers import StrOutputParser
 llm = ChatGroq(
     model="openai/gpt-oss-120b",
     groq_api_key=os.getenv("GROQ_API_KEY"),
-    temperature=0.3
+    temperature=0.3,
+    max_tokens=600
 )
 
 # Step 2: Har agent ko ek simple LCEL chain banayein
@@ -46,14 +47,16 @@ query_generator = query_gen_prompt | llm | StrOutputParser()
 
 # Analyst Agent
 analyst_prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a neutral and data-driven adjudicator..."),
+    ("system", "You are a neutral and data-driven adjudicator..."
+     "Keep the analysis concise and under 400 words."),
     ("human", "Here is the debate:\n{debate}\n\nHere are the real-time search results (in JSON format):\n{search_results}"),
 ])
 analyst_agent = analyst_prompt | llm | StrOutputParser()
 
 # Moderator Agent
 moderator_prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a wise and experienced project moderator..."),
+    ("system", "You are a wise and experienced project moderator..." 
+    "Keep the analysis concise and under 400 words."),
     ("human", "{input}"),
 ])
 moderator_agent = moderator_prompt | llm | StrOutputParser()
